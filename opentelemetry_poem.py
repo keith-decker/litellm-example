@@ -1,10 +1,5 @@
 import os
-import litellm  
-import json
-from dotenv import load_dotenv
-
-# load environment variables from .env if present
-load_dotenv()
+import litellm
 
 def generate_poem_with_openai(api_key):
     """Generate a poem using OpenAI's GPT-4."""

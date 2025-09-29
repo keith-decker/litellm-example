@@ -1,9 +1,6 @@
-# Core dependencies inferred from opentelemetry_poem.py
+opentelemetry-distro[otlp]
+opentelemetry-instrumentation
+
 python-dotenv
 litellm
-
-# OpenTelemetry (for LiteLLM OTEL callbacks and OTLP export)
-opentelemetry-api
-opentelemetry-sdk
-opentelemetry-exporter-otlp
-grpcio
+litellm[proxy]
