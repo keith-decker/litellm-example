@@ -1,0 +1,18 @@
+model_list:
+  - model_name: gpt-4.1
+    litellm_params:
+      model: gpt-4-turbo-preview
+      api_key: os.environ/OPENAI_API_KEY
+  
+  - model_name: ollama/llama3.2:latest
+    litellm_params:
+      model: ollama/llama3.2:latest
+      api_base: http://localhost:11434
+
+litellm_settings:
+  callbacks: ["otel"]
+  success_callback: ["otel"]
+  failure_callback: ["otel"]
+
+general_settings:
+  master_key: sk-1234  # Change this to a secure key in production
