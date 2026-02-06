@@ -7,7 +7,7 @@ model_list:
   - model_name: ollama/llama3.2:latest
     litellm_params:
       model: ollama/llama3.2:latest
-      api_base: http://localhost:11434
+      api_base: http://host.docker.internal:11434
       input_cost_per_token: 0.00001
       output_cost_per_token: 0.00002
 
@@ -15,19 +15,33 @@ model_list:
     litellm_params:
       model: openai/deepseek-r1-0528-qwen3-8b  # Use openai/ prefix for OpenAI-compatible endpoints like LM Studio
       api_key: api-key                 # api key to send your model
-      api_base: "http://localhost:1234/v1"
+      api_base: "http://host.docker.internal:1234/v1"
+      # api_base: "http://192.168.0.69:1234/v1"
       custom_llm_provider: openai
       input_cost_per_token: 0.000001
       output_cost_per_token: 0.000002
 
 litellm_settings:
   callbacks: ["otel"]
-  success_callback: ["otel"]
-  failure_callback: ["otel"]
-  turn_off_message_logging: true
+  drop_params: true
+  turn_off_message_logging: false
 
 general_settings:
   master_key: sk-1234  # Change this to a secure key in production
   otel: true  # Enable OpenTelemetry logging
-  # Optional: database_url can be set if using UI features
-  # database_url: "postgresql://litellm_user:your_strong_password@localhost:5432/litellm_db"
+  # database_url: "postgresql://litellm_user:your_strong_password@db:5432/litellm_db"
+
+team_list:
+  - team_name: "team-a"
+    team_id: "team-a-id-001"
+    members: ["user-a1", "user-a2"]
+    spend_logs_db: true
+    
+  - team_name: "team-b"
+    team_id: "team-b-id-002"
+    members: ["user-b1", "user-b2"]
+    spend_logs_db: true
+
+key_management_settings:
+  write_to_db: true
+

@@ -1,0 +1,20 @@
+FROM ghcr.io/berriai/litellm:main-stable
+
+# Copy local litellm source into the image. Expected to exist at build time
+# as a folder named "litellm-src" in the Docker build context.
+# Leave this directory present (even empty) so COPY doesn't fail when not used.
+COPY litellm-src/ /opt/litellm-src/
+
+RUN set -eux; \
+    echo "Installing litellm from local source (/opt/litellm-src)"; \
+    pip install --no-cache-dir --upgrade \
+        "/opt/litellm-src[proxy]"; \
+    pip install --no-cache-dir --upgrade \
+        "opentelemetry-api==1.38.0" \
+        "opentelemetry-sdk==1.38.0" \
+        "opentelemetry-exporter-otlp-proto-grpc==1.38.0" \
+        "opentelemetry-exporter-otlp==1.38.0" \
+        "prometheus_client==0.20.0"
+
+# Generate Prisma binaries for database support
+# RUN prisma generate --schema=/usr/local/lib/python3.9/site-packages/litellm/proxy/schema.prisma

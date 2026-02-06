@@ -1,0 +1,72 @@
+services:
+  litellm:
+    # build: .
+    image: ghcr.io/berriai/litellm:main-stable
+    environment:
+      LITELLM_DEBUG: "true"
+      LITELLM_PROXY_KEY: sk-1234
+      LITELLM_OTEL_INTEGRATION_ENABLE_METRICS: "true"
+      LITELLM_OTEL_INTEGRATION_ENABLE_EVENTS: "true"
+      OPENAI_API_KEY: sk-9999
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://host.docker.internal:4317"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=kdecker-o11y-for-ai-dev,service.name=litellm-upstream,service.version=1.80.8"
+      # LITELLM_LICENSE=: "eyJleHBpcmF0aW9uX2RhdGUiOiAiMjAyNS0xMi0yNCIsICJ1c2VyX2lkIjogInRyaWFsLWxpY2Vuc2UtbGl0ZWxsbSIsICJhbGxvd2VkX2ZlYXR1cmVzIjogWyIqIl0sICJtYXhfdXNlcnMiOiAxMDAsICJtYXhfdGVhbXMiOiA1fS4xLQ/Mb6JQP3FRE2HhT+jQ25CUaEp06dTyjuRJ+A/0LDgtg76+Y0yuy3SczN+rakmlBjc2P9xSGiraWSIL8PXz7RdiWRS8EwmOEVOGIj7D4tLvKm9JMxAHNLYEiFosSrJxDCwyJ9AWjK0j9ugHf5f/fG6UB1UPeIUhede92wqLe5jHC0zvxeHFxZWnuY46Cs3RPH5SJTHxbRIWjqGwmC/DCxd9unO+YmuENbYJkYjdDWoSDMd5HrN9dRqIpPMu5WvFFb1+XtkNzSzBoJY5klrrI+6/IUW7v274cg6DqBRqdmd8wEPTO70GTwYV8PSyJtWLgn75KE+qrQElfVBX3EMH"
+    ports:
+      - "4008:4000"
+    volumes:
+      # - ./proxy_config_docker.yaml:/app/proxy_server_config.yaml:ro
+      - ./proxy_config_docker.yaml:/app/config.yaml:ro
+    command:
+      - "--config"
+      - "/app/config.yaml"
+
+  # litellm-custom:
+    # build:
+      # context: .
+      # dockerfile: Dockerfile.patched
+      # dockerfile: Dockerfile
+    # image: ghcr.io/berriai/litellm:main-stable
+  litellm-custom:
+    image: keitdeck245/kdecker-litellm:v1.81.0
+    environment:
+      LITELLM_DEBUG: "true"
+      LITELLM_PROXY_KEY: sk-1234
+      LITELLM_OTEL_INTEGRATION_ENABLE_METRICS: "true"
+      LITELLM_OTEL_INTEGRATION_ENABLE_EVENTS: "true"
+      OPENAI_API_KEY: sk-9999
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://host.docker.internal:4317"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: "Delta"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=kdecker-o11y-for-ai-dev,service.name=litellm-custom,service.version=1.81.0"
+    ports:
+      - "4007:4000"
+    volumes:
+      - ./proxy_config_docker.yaml:/app/proxy_server_config.yaml:ro
+      - ./proxy_config_docker.yaml:/app/config.yaml:ro
+    command:
+      - "--config"
+      - "/app/config.yaml"
+
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: litellm_db
+      POSTGRES_USER: litellm_user
+      POSTGRES_PASSWORD: your_strong_password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # Optional: if you need to access the DB from outside the Docker network
+
+volumes:
+  db_data:
+
+networks:
+  my_macvlan_net:
+    external: true
+    name: my_macvlan_net
