@@ -1,0 +1,41 @@
+# Dockerfile for LiteLLM with Cisco Integration
+# Extends the official LiteLLM image with custom Cisco modules
+
+FROM ghcr.io/berriai/litellm:main-stable
+
+# Set working directory
+WORKDIR /app
+
+# Install additional dependencies if needed
+RUN pip install --no-cache-dir requests
+# update opentelemetry packages to match expected telemetry output format
+RUN pip install --no-cache-dir --upgrade \
+        "opentelemetry-api==1.38.0" \
+        "opentelemetry-sdk==1.38.0" \
+        "opentelemetry-exporter-otlp-proto-grpc==1.38.0" \
+        "opentelemetry-exporter-otlp==1.38.0" \
+        "prometheus_client==0.20.0"
+
+# Copy Cisco integration modules
+# These will be available in Python's path
+COPY cisco_provider.py /app/
+COPY cisco_callback.py /app/
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh
+
+# Copy configuration
+COPY proxy_config_docker.yaml /app/config.yaml
+
+# Expose the proxy port
+EXPOSE 4000
+
+# Set the custom entrypoint
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+# The callback system in LiteLLM will automatically discover cisco_callback.py
+# because we've added it to the PYTHONPATH via the working directory
+
+# Start LiteLLM with config
+CMD ["--config", "/app/config.yaml", "--port", "4000", "--detailed_debug"]

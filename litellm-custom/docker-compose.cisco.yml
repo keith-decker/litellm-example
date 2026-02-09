@@ -1,0 +1,56 @@
+services:
+  litellm-cisco:
+    build:
+      context: .
+      dockerfile: Dockerfile.cisco
+    container_name: litellm-cisco
+    environment:
+      # Cisco Credentials
+      CISCO_CLIENT_ID: ${CISCO_CLIENT_ID}
+      CISCO_CLIENT_SECRET: ${CISCO_CLIENT_SECRET}
+      CISCO_APP_KEY: ${CISCO_APP_KEY:-}
+      
+      # LiteLLM Settings
+      LITELLM_DEBUG: "true"
+      LITELLM_PROXY_KEY: sk-1234
+      
+      # OpenTelemetry Settings
+      LITELLM_OTEL_INTEGRATION_ENABLE_METRICS: "true"
+      LITELLM_OTEL_INTEGRATION_ENABLE_EVENTS: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://host.docker.internal:4317"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: "Delta"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev,service.name=litellm-cisco,service.version=1.81.0"
+      
+      # Other Model API Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-9999}
+      
+      # Python path to ensure modules are discoverable
+      PYTHONPATH: /app
+      
+    ports:
+      - "4000:4000"
+    
+    volumes:
+      # Mount config (optional if baked into image)
+      - ./proxy_config_docker.yaml:/app/config.yaml:ro
+      # Mount Cisco integration modules (override image versions)
+      - ./cisco_callback.py:/app/cisco_callback.py:ro
+      - ./cisco_provider.py:/app/cisco_provider.py:ro
+      
+      # Mount token cache directory for persistence across restarts
+      - cisco-token-cache:/tmp
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  cisco-token-cache:
+    driver: local

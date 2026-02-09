@@ -103,6 +103,30 @@ def generate_poem_with_ollama():
     except Exception as e:
         return f"Error generating poem with Ollama: {str(e)}"
 
+def generate_poem_with_cisco():
+    """Generate a poem using Cisco LLM via LiteLLM proxy."""
+    api_key = "sk-1234"
+    
+    client = openai.OpenAI(
+        api_key=api_key,
+        base_url=os.getenv("LITELLM_PROXY_URL", "http://localhost:4000/v1")
+    )
+
+    messages = [
+        {"role": "system", "content": "You are a poetic assistant, skilled in crafting beautiful poems about technical topics."},
+        {"role": "user", "content": "Write a short, creative poem about OpenTelemetry, the open-source observability framework. Focus on its ability to provide insights and visibility into distributed systems."}
+    ]
+
+    try:
+        response = client.chat.completions.create(
+            model="cisco-llm",
+            messages=messages,
+            stream=False  # Test without streaming first
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error generating poem with Cisco: {str(e)}"
+
 def main():
     team, api_key = get_random_team_key()
     print("=== OpenTelemetry Poetry Generator (via LiteLLM Proxy) ===")
@@ -112,16 +136,23 @@ def main():
     # print(poem)
     # print("\n" + "="*50 + "\n")
     
-    print("Generating poem with DeepSeek-R1...\n")
-    print("=== Poem (DeepSeek-R1) ===")
-    deepseek_poem = generate_poem_with_deepseek()
-    print(deepseek_poem)
-    print("\n" + "="*50 + "\n")
+    # print("Generating poem with DeepSeek-R1...\n")
+    # print("=== Poem (DeepSeek-R1) ===")
+    # deepseek_poem = generate_poem_with_deepseek()
+    # print(deepseek_poem)
+    # print("\n" + "="*50 + "\n")
     
-    print("Generating poem with Ollama...\n")
-    print("=== Poem (Ollama) ===")
-    ollama_poem = generate_poem_with_ollama()
-    print(ollama_poem)
+    # print("Generating poem with Ollama...\n")
+    # print("=== Poem (Ollama) ===")
+    # ollama_poem = generate_poem_with_ollama()
+    # print(ollama_poem)
+    # print("\n" + "="*50 + "\n")
+    
+    # Uncomment to test Cisco LLM (requires credentials)
+    print("Generating poem with Cisco LLM...\n")
+    print("=== Poem (Cisco) ===")
+    cisco_poem = generate_poem_with_cisco()
+    print(cisco_poem)
 
 if __name__ == "__main__":
     main()

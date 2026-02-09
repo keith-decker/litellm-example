@@ -20,8 +20,17 @@ model_list:
       input_cost_per_token: 0.000001
       output_cost_per_token: 0.000002
 
+  - model_name: "cisco-llm"
+    litellm_params:
+      model: openai/gpt-4.1
+      api_base: "https://chat-ai.cisco.com/openai/deployments/gpt-4.1"
+      api_key: os.environ/CISCO_API_TOKEN  # Token fetched via OAuth2
+      custom_llm_provider: openai
+      input_cost_per_token: 0.000001
+      output_cost_per_token: 0.000002
+
 litellm_settings:
-  callbacks: ["otel"]
+  callbacks: ["otel", "cisco_callback.cisco_handler"]
   drop_params: true
   turn_off_message_logging: false
 
