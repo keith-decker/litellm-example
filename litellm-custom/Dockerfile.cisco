@@ -25,6 +25,10 @@ COPY cisco_callback.py /app/
 COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh
 
+# Copy key initialization script
+COPY init-keys.sh /app/
+RUN chmod +x /app/init-keys.sh
+
 # Copy configuration
 COPY proxy_config_docker.yaml /app/config.yaml
 

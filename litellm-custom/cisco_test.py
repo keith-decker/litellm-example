@@ -1,13 +1,14 @@
 import os
 import openai
 import time
+import random
 
 
 def generate_poem_with_cisco():
     """Generate a poem using Cisco LLM via LiteLLM proxy with streaming."""
-    # Use LITELLM_PROXY_KEY - must match the master_key in config
-    # The master key value itself can be used directly without a database
-    api_key = os.environ.get("LITELLM_PROXY_KEY", "sk-1234")
+    # Randomly select between Team A and Team B keys
+    team = random.choice(["A", "B"])
+    api_key = os.environ.get(f"TEAM_{team}_KEY", f"sk-team-{team.lower()}-key-{'12345' if team == 'A' else '67890'}")
     
     client = openai.OpenAI(
         api_key=api_key,
@@ -52,9 +53,10 @@ def generate_poem_with_cisco():
         return f"Error generating poem with Cisco: {str(e)}"
 
 def main():
-    master_key = os.environ.get("LITELLM_PROXY_KEY", "sk-1234")
+    team = random.choice(["A", "B"])
+    team_key = os.environ.get(f"TEAM_{team}_KEY", f"sk-team-{team.lower()}-key-{'12345' if team == 'A' else '67890'}")
     print("=== OpenTelemetry Poetry Generator (via LiteLLM Proxy) ===")
-    print(f"Using master key ({master_key[:10]}...)\n")
+    print(f"Using Team {team} key ({team_key[:20]}...)\n")
     # Uncomment to test Cisco LLM (requires credentials)
     print("Generating poem with Cisco LLM...\n")
     print("=== Poem (Cisco) ===")

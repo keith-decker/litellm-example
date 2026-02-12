@@ -34,5 +34,11 @@ echo "Starting LiteLLM proxy..."
 echo "================================================"
 echo ""
 
+# Start key initialization in background (runs after proxy is ready)
+if [ -n "$LITELLM_MASTER_KEY" ] && [ -n "$TEAM_A_KEY" ]; then
+    echo "Key initialization will run in background..."
+    /app/init-keys.sh > /var/log/init-keys.log 2>&1 &
+fi
+
 # Start LiteLLM with the provided arguments
 exec litellm "$@"

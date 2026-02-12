@@ -16,8 +16,7 @@ litellm_settings:
   failure_callback: ["otel"]
 
 general_settings:
-  # Authentication disabled for local development
-  # SECURITY: Only safe because proxy is bound to localhost (127.0.0.1)
-  # For production: use master_key + database OR deploy behind authenticated gateway
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
   otel: true  # Enable OpenTelemetry logging
-  disable_spend_logs: true  # Disable spend tracking (no database needed)
+  store_model_in_db: false  # Keep model config in YAML, not DB
