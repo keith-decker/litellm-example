@@ -16,6 +16,8 @@ litellm_settings:
   failure_callback: ["otel"]
 
 general_settings:
-  master_key: os.environ/LITELLM_PROXY_KEY  # Change this to a secure key in production
+  # Authentication disabled for local development
+  # SECURITY: Only safe because proxy is bound to localhost (127.0.0.1)
+  # For production: use master_key + database OR deploy behind authenticated gateway
   otel: true  # Enable OpenTelemetry logging
-  disable_spend_logs: true
+  disable_spend_logs: true  # Disable spend tracking (no database needed)

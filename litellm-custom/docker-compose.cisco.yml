@@ -30,7 +30,7 @@ services:
       PYTHONPATH: /app
       
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"  # Bind to localhost only for security
     
     volumes:
       # Mount config (optional if baked into image)

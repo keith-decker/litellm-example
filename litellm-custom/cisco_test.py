@@ -1,10 +1,12 @@
 import os
 import openai
+import time
 
 
 def generate_poem_with_cisco():
-    """Generate a poem using Cisco LLM via LiteLLM proxy."""
-    # Use LITELLM_PROXY_KEY to match what the docker container uses
+    """Generate a poem using Cisco LLM via LiteLLM proxy with streaming."""
+    # Use LITELLM_PROXY_KEY - must match the master_key in config
+    # The master key value itself can be used directly without a database
     api_key = os.environ.get("LITELLM_PROXY_KEY", "sk-1234")
     
     client = openai.OpenAI(
@@ -18,12 +20,34 @@ def generate_poem_with_cisco():
     ]
 
     try:
+        start_time = time.time()
+        time_to_first_token = None
+        full_response = ""
+        
         response = client.chat.completions.create(
             model="cisco-llm",
             messages=messages,
-            stream=False  # Test without streaming first
+            stream=True  # Enable streaming for TTFT measurement
         )
-        return response.choices[0].message.content
+        
+        # Process streaming response
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                content = chunk.choices[0].delta.content
+                full_response += content
+                
+                # Measure time to first token
+                if time_to_first_token is None:
+                    time_to_first_token = time.time() - start_time
+                    print(f"\n[Time to First Token: {time_to_first_token:.3f}s]\n")
+                
+                # Print streaming output
+                print(content, end='', flush=True)
+        
+        total_time = time.time() - start_time
+        print(f"\n\n[Total time: {total_time:.3f}s]")
+        
+        return full_response
     except Exception as e:
         return f"Error generating poem with Cisco: {str(e)}"
 
